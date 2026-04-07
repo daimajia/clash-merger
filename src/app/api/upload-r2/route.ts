@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 
-let cachedS3Client: S3Client | null = null;
 function getS3Client() {
-  if (cachedS3Client) return cachedS3Client;
-
   const accountId = process.env.R2_ACCOUNT_ID;
   const accessKeyId = process.env.R2_ACCESS_KEY_ID;
   const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY;
@@ -13,12 +10,13 @@ function getS3Client() {
     throw new Error('R2 环境变量未配置');
   }
 
-  cachedS3Client = new S3Client({
+  const endpoint = `https://${accountId}.r2.cloudflarestorage.com`;
+
+  return new S3Client({
     region: 'auto',
-    endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
+    endpoint,
     credentials: { accessKeyId, secretAccessKey },
   });
-  return cachedS3Client;
 }
 
 function getBucket() {

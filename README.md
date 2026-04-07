@@ -38,9 +38,9 @@ npm install
 
 ```env
 # Cloudflare R2 Configuration Example
+R2_ACCOUNT_ID="你的 Cloudflare Account ID"
 R2_ACCESS_KEY_ID="你的访问密钥"
 R2_SECRET_ACCESS_KEY="你的安全密钥"
-R2_ENDPOINT="https://<account_id>.r2.cloudflarestorage.com"
 R2_BUCKET_NAME="你的存储桶名称"
 R2_PUBLIC_URL="https://pub-xxxxxx.r2.dev" # 你的公开访问域名或者自定义域名
 ```
