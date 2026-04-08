@@ -6,10 +6,31 @@ interface DeduplicatedProxy extends ClashProxy {
 
 /**
  * 生成代理的唯一标识 key
- * 基于 type + server + port (同一服务器同端口同协议为重复)
+ * 综合 type + server + port + 传输协议 + 凭证 + 路径等参数
+ * 确保同服务器但不同传输通道/凭证的节点不被误判为重复
  */
 function getProxyKey(proxy: ClashProxy): string {
-  return `${proxy.type}://${proxy.server}:${proxy.port}`;
+  const base = `${proxy.type}://${proxy.server}:${proxy.port}`;
+
+  // 传输层协议 (ws / grpc / h2 / tcp 等)
+  const network = (proxy.network as string) || (proxy.net as string) || 'tcp';
+
+  // 凭证标识 (不同 uuid/password 意味着不同的节点)
+  const credential = (proxy.uuid as string) || (proxy.password as string) || '';
+
+  // 传输路径 (ws-path, grpc serviceName 等)
+  const path = (proxy['ws-path'] as string)
+    || (proxy.path as string)
+    || ((proxy['ws-opts'] as Record<string, unknown>)?.path as string)
+    || ((proxy['grpc-opts'] as Record<string, unknown>)?.['grpc-service-name'] as string)
+    || '';
+
+  // SNI (不同 SNI 可能是不同的接入点)
+  const sni = (proxy.sni as string)
+    || (proxy.servername as string)
+    || '';
+
+  return `${base}/${network}/${credential}/${path}/${sni}`;
 }
 
 /**

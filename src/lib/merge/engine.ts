@@ -40,9 +40,14 @@ export function mergeConfigs(
     proxyGroups = buildPreserveGroups(proxies, sourceGroups, proxyMapping);
   }
 
-  // 4. 合并规则
+  // 4. 合并规则（传入有效分组名，用于 preserve 模式下验证规则 target）
+  const validGroupNames = new Set([
+    ...proxyGroups.map((g) => g.name),
+    'DIRECT',
+    'REJECT',
+  ]);
   const sourceRules = parsedSources.map((s) => s.config.rules || []);
-  const rules = mergeRules(options.strategy, sourceRules);
+  const rules = mergeRules(options.strategy, sourceRules, validGroupNames);
 
   // 5. 组装最终配置
   const mergedConfig: ClashConfig = {
